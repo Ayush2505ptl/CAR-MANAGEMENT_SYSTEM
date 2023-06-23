@@ -1,0 +1,150 @@
+#include <iostream>
+#include <vector>
+#include <string>
+#include <algorithm>
+
+using namespace std;
+
+class Car {
+private:
+    string licensePlate;
+    string color;
+
+public:
+    Car(const string& plate, const string& carColor) : licensePlate(plate), color(carColor) {}
+
+    string getLicensePlate() const {
+        return licensePlate;
+    }
+
+    string getColor() const {
+        return color;
+    }
+};
+
+class ParkingSlot {
+private:
+    bool occupied;
+    Car parkedCar;
+
+public:
+    ParkingSlot() : occupied(false), parkedCar("", "") {}
+
+    bool isOccupied() const {
+        return occupied;
+    }
+
+    void parkCar(const Car& car) {
+        parkedCar = car;
+        occupied = true;
+    }
+
+    void removeCar() {
+        parkedCar = Car("", "");
+        occupied = false;
+    }
+
+    Car getParkedCar() const {
+        return parkedCar;
+    }
+};
+
+class ParkingLot {
+private:
+    vector<ParkingSlot> slots;
+
+public:
+    ParkingLot(int capacity) {
+        slots.resize(capacity);
+    }
+
+    int getAvailableSlotsCount() const {
+        int count = 0;
+        for (const auto& slot : slots) {
+            if (!slot.isOccupied()) {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    void printAvailableSlots() const {
+        cout << "Available parking slots: ";
+        bool foundEmpty = false;
+        for (int i = 0; i < slots.size(); i++) {
+            if (!slots[i].isOccupied()) {
+                foundEmpty = true;
+                cout << i + 1 << " ";
+            }
+        }
+
+        if (!foundEmpty) {
+            cout << "None";
+        }
+        cout << endl;
+    }
+
+    bool parkCar(const Car& car, int slotNumber) {
+        if (slotNumber < 1 || slotNumber > slots.size()) {
+            cout << "Invalid slot number. Please try again." << endl;
+            return false;
+        }
+
+        ParkingSlot& slot = slots[slotNumber - 1];
+        if (slot.isOccupied()) {
+            cout << "Slot " << slotNumber << " is already occupied. Please choose another slot." << endl;
+            return false;
+        }
+
+        slot.parkCar(car);
+        cout << "Car with license plate " << car.getLicensePlate() << " parked at slot " << slotNumber << " successfully." << endl;
+        return true;
+    }
+};
+
+int main() {
+    ParkingLot parkingLot(5);
+
+    while (true) {
+        cout << "-----------------------" << endl;
+        cout << "1. Show available slots" << endl;
+        cout << "2. Park a car" << endl;
+        cout << "3. Exit" << endl;
+        cout << "Enter your choice: ";
+
+        int choice;
+        cin >> choice;
+
+        switch (choice) {
+            case 1: {
+                cout << "Number of available slots: " << parkingLot.getAvailableSlotsCount() << endl;
+                parkingLot.printAvailableSlots();
+                break;
+            }
+            case 2: {
+                string licensePlate, color;
+                cout << "Enter license plate: ";
+                cin >> licensePlate;
+                cout << "Enter color: ";
+                cin >> color;
+                Car car(licensePlate, color);
+
+                int slotNumber;
+                cout << "Enter the slot number to park the car: ";
+                cin >> slotNumber;
+
+                if (parkingLot.parkCar(car, slotNumber)) {
+                    // Car parked successfully
+                } else {
+                    // Error occurred while parking the car
+                }
+                break;
+            }
+            case 3:
+                cout << "Exiting the program." << endl;
+                return 0;
+            default:
+                cout << "Invalid choice. Please try again." << endl;
+        }
+    }
+}
